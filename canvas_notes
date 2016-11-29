@@ -1,0 +1,36 @@
+Canvas notes
+
+<canvas id="myCanvas" width=500 height=500>
+Text only visible to those how does not support canvas
+</canvas>
+
+
+<script>
+	var canvas = document.getElementById("myCanvas");
+	var context = canvas.getContext("2d");
+	//Now we can draw in the context
+
+	//Square (xpos,ypos,width,height)
+	context.fillRect(0,0,150,75);
+
+	//line start pos and end pos
+	context.moveTo(x,y);
+	context.line(x,y);
+	//use an ink method to draw line
+	context.stroke();
+
+	//Circle startangle 0 is right and Math.PI*2
+	context.beginPath();
+	context.arc(x,y,r,startangle,endangle);
+
+	//text can eigther be draw by fillText or strokeText
+	context.font ="30px Arial"
+	context.fillText(text,x,y);
+	context.strokeText(text,x,y);
+
+	//Styling
+	context.fillStyle = "red";
+	context.textAlign = "center";
+
+	//isPointInPath(x,y) check if a point is in the current path
+</script>

@@ -1,0 +1,428 @@
+<html>
+	<head>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,500" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P|Ubuntu" rel="stylesheet">
+
+		<style>
+			html, body{
+				font-family: 'Ubuntu', sans-serif;
+				margin:0;
+				padding:0;
+			}
+			
+			.title{
+				
+				font-size:2em;
+			}
+			.subTitle{
+				color:#6f6f6f;
+			}
+			canvas{
+			}
+			.userFeedback{
+				display:inline-block;
+			}
+			/* The Modal (background) */
+			.modal {
+			    display: none; /* Hidden by default */
+			    position: fixed; /* Stay in place */
+			    z-index: 1; /* Sit on top */
+			    padding-top: 100px; /* Location of the box */
+			    left: 0;
+			    top: 0;
+			    width: 100%; /* Full width */
+			    height: 100%; /* Full height */
+			    overflow: auto; /* Enable scroll if needed */
+			    background-color: rgb(0,0,0); /* Fallback color */
+			    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+			    text-align:center;
+			    color:#ff6666;
+			    font-size:4em;
+			}
+
+			/* Modal Content */
+			.modal-content {
+			    background-color: #fefefe;
+			    margin: auto;
+			    padding: 20px;
+			    border: 1px solid #888;
+			    width: 80%;
+			}
+
+			/* The Close Button */
+			.close {
+			    color: #aaaaaa;
+			    float: right;
+			    font-size: 28px;
+			    font-weight: bold;
+			}
+
+			.close:hover,
+			.close:focus {
+			    color: #000;
+			    text-decoration: none;
+			    cursor: pointer;
+			}
+		</style>
+		
+	</head>
+	<body onload="startGame()" style="background-color: white; padding: 30px;">
+		<div class="title">Snake reborn</div>
+		<div class="subTitle">An old game implemented with the last web-technology - Canvas</div>
+		<canvas id="gameCanvas" style="background-color: white;">
+			Sorry, your browser does not support canvas
+		</canvas>
+		<img id="food" src="food.png" alt="food" style="display:none;">
+		<div class="userFeedback">
+		<div>Score: <span id="score">0</span></div>
+		<div>Level: <span id="level">1</span></div>
+		<div>Snake length: <span id="snakeLength">6</span></div>
+		</div>
+<!-- The Modal -->
+<div id="gameOverModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" id="restartGame">×</span>
+    <p>GAME OVER</p>
+  </div>
+
+</div>
+
+
+
+		<script>
+			var foodImage=document.getElementById("food");
+			var scoreText = document.getElementById("score");
+			var levelText = document.getElementById("level");
+			var snakeLengthText = document.getElementById("snakeLength");
+			var closeModal = document.getElementById("restartGame");
+			// Get the modal
+			var modal = document.getElementById('gameOverModal');
+			var miliSecSinceFoodDelay = 10000;
+			var miliSecLevelUpDelay = 15000;
+			var mySnakeHead, myFood;
+			var mySnakeBody= [];
+			var myObstacles = [];
+			var step = 20;
+			var startFramerate = 200;
+			var isStarted = false;
+			var canvasHeight = 500;
+			var canvasWidth = 600;
+			var grow = false;
+			var points = 0;
+			var strokeColor = '#606060';
+			var snakeColor = '#ff6666'
+			var level = 1;
+			var hasMoved = true;
+			var miliSecSinceLevelUp = 0;
+			var miliSecSinceFood = 0;
+
+
+			function startGame() {
+				myGameArena.start();
+				generateBoard();
+				myFood = new component (30, 30, "yellow",strokeColor, 100, 120);
+				myFood.moveOffScreen();
+				mySnakeHead = new component (step, step, snakeColor,strokeColor, 120, 120);
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step,120));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-2*step,120));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-3*step,120));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*4,120));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*5,120));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*6,120));
+				
+			}
+
+			function levelUp(){
+				level ++;
+				startFramerate = Math.round(startFramerate/2);
+				myGameArena.start;
+
+			}
+
+			function generateBoard(){
+				myObstacles.push(new component(1,canvasHeight,"black","#fff",  canvasWidth-1,0));
+				myObstacles.push(new component(canvasWidth,1,"black", "#fff", 0,canvasHeight-1));
+				myObstacles.push(new component(1,canvasHeight,"black", "#fff", 0,0));
+				myObstacles.push(new component(canvasWidth,1,"black","#fff", 0,0));
+				myObstacles.push(new component(canvasWidth/2,1, "black", "#fff", canvasWidth/4, canvasHeight*3/4));
+				myObstacles.push(new component(1, canvasHeight/2-step,"black", "#fff", canvasWidth/4, canvasHeight/4+step));
+				myObstacles.push(new component(1, canvasHeight/2-step,"black", "#fff", canvasWidth*3/4, canvasHeight/4+step));
+				//myObstacles.push(new component(canvasWidth/2, 1, "black", "#fff", canvasWidth/2,200));
+			}
+
+			var myGameArena = {
+				canvas :  document.getElementById("gameCanvas"),
+				start : function(){
+					this.canvas.width = canvasWidth;
+					this.canvas.height = canvasHeight;
+					this.context = this.canvas.getContext("2d");	
+					this.interval = setInterval(updateGameArena, startFramerate);
+				},
+
+				clear : function() {
+					this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				},
+				stop : function() {
+					clearInterval(this.interval);
+				}
+			};
+
+			function component(width, height, color,strokeColor, x, y) {
+				this.width = width;
+				this.height = height;
+				this.speedX = 0;
+				this.speedY = 0;
+				this.x = x;
+				this.y = y;
+				this.color = color;
+				this.strokeColor = strokeColor;
+				this.moveNorth = false;
+				this.moveSouth = false;
+				this.moveEast = false;
+				this.moveWest = false;
+
+				this.update = function() {
+					context = myGameArena.context;
+					context.lineWidth = 3;
+					context.fillStyle = color;
+					context.strokeStyle= strokeColor;
+					context.fillRect(this.x, this.y, this.width, this.height);
+				//	context.strokeRect(this.x, this.y, this.width, this.height);
+				}
+				this.updateFood = function(){
+					context = myGameArena.context;
+					context.drawImage(foodImage,this.x,this.y);
+				}
+				this.updateHead = function() {
+					hasMoved = true;
+					context = myGameArena.context;
+					context.beginPath();
+					context.arc(this.x+step/2,this.y+step/2,step/2,0, 2*Math.PI, false);
+					context.fillStyle = color;
+					context.fill();
+
+				}
+				this.resetMove = function resetMove(){
+					this.moveNorth = false;
+					this.moveSouth = false;
+					this.moveEast = false;
+					this.moveWest = false;
+				}
+			   	this.newPos = function() {
+			        this.x += this.speedX;
+			        this.y += this.speedY; 
+			    } 
+			    this.crashWith = function(otherobj) {
+			    	var myLeft = this.x;
+			    	var myRight = this.x + (this.width);
+			    	var myTop = this.y;
+			    	var myBottom = this.y + (this.height);
+			    	var otherLeft = otherobj.x;
+			    	var otherRight = otherobj.x + (otherobj.width);
+			    	var otherTop = otherobj.y;
+			    	var otherBottom =otherobj.y + (otherobj.height);
+				   	var crash = true;
+			    	if((myBottom <= otherTop) || (myTop >= otherBottom) || (myRight <= otherLeft) || (myLeft >= otherRight)) {
+			    		crash = false;
+			    	}
+			    	return crash;
+			    }
+			    this.moveOffScreen = function(){
+			    	this.x = canvasWidth + myFood.width;
+					this.y = canvasHeight + myFood.height;
+					this.update;
+			    }
+
+
+			}
+
+			
+
+			function displayFood(){
+				//compute random location
+				myFood.x = Math.floor(Math.random() * canvasWidth );
+				myFood.y = Math.floor( Math.random() * canvasHeight );
+				myObstacles.forEach(function(obstacle) {
+					if (myFood.crashWith(obstacle)) {
+						//If food crash with obstacle recalculate location
+						displayFood(); 
+				    }
+				});
+	
+			}
+			function moveSnake(){
+				var tempHead = new component(mySnakeHead.width,mySnakeHead.height,mySnakeHead.color,mySnakeHead.strokeColor,mySnakeHead.x,mySnakeHead.y);
+				mySnakeHead.newPos();
+				/*put head at front*/
+				mySnakeBody.unshift(tempHead);
+				/*Remove the last element*/
+				if(!grow){
+					mySnakeBody.pop();
+				}else{
+					myFood.moveOffScreen();
+					snakeLengthText.innerHTML =mySnakeBody.length;
+				}
+				
+			}
+
+			function moveUp(){
+				if(mySnakeHead.moveSouth == false && mySnakeHead.moveNorth == false){
+					mySnakeHead.speedX = 0;
+					mySnakeHead.speedY -= step;
+					mySnakeHead.resetMove();
+					mySnakeHead.moveNorth = true;
+					hasMoved = false;
+				}
+				
+			}
+			function moveDown(){
+				if(mySnakeHead.moveNorth == false && mySnakeHead.moveSouth == false){
+					mySnakeHead.speedX = 0;
+					mySnakeHead.speedY += step;
+					mySnakeHead.resetMove();
+					mySnakeHead.moveSouth = true;
+					hasMoved = false;
+				}
+				
+			}
+			function moveLeft(){
+				if(mySnakeHead.moveEast == false && mySnakeHead.moveWest == false){
+					mySnakeHead.speedX -= step;
+					mySnakeHead.speedY = 0;
+					mySnakeHead.resetMove();
+					mySnakeHead.moveWest = true;
+					hasMoved = false;
+				}
+
+			}
+			function moveRight(){
+				if(mySnakeHead.moveEast == false && mySnakeHead.moveWest == false){
+					mySnakeHead.speedX += step;
+					mySnakeHead.speedY = 0;
+					mySnakeHead.resetMove();
+					mySnakeHead.moveEast = true;
+					hasMoved = false;
+				}
+			}
+
+
+			/*Clear the gameArena to remove the tail*/
+			function updateGameArena() {
+				var crash = false;
+				myObstacles.forEach(function(obstacle) {
+					if (mySnakeHead.crashWith(obstacle)) {
+						myGameArena.stop();
+						
+				        crash = true;
+				         modal.style.display = "block";
+				    }
+				});
+				mySnakeBody.forEach(function(snakeBodyItem) {
+					if(mySnakeHead.crashWith(snakeBodyItem) && isStarted){
+		        		myGameArena.stop();
+		        		    modal.style.display = "block";
+					};
+				});
+				if(crash){
+					return;
+				}
+				
+		    	if(mySnakeHead.crashWith(myFood)) {
+					grow = true;
+		    	}else{
+		    		grow = false;
+		    	}
+				myGameArena.clear();
+				myFood.updateFood();
+
+				myObstacles.forEach(function(obstacle) {
+					obstacle.update();
+				});
+
+				if(isStarted){
+					computeScore();
+					moveSnake();
+					miliSecSinceFood = miliSecSinceFood + startFramerate;
+					miliSecSinceLevelUp = miliSecSinceLevelUp + startFramerate;
+					if(miliSecSinceFood > miliSecSinceFoodDelay){
+						miliSecSinceFoodDelay = Math.round(Math.random()*10000); //The delay will be from 0 to 10000 sec
+						console.log(miliSecSinceFoodDelay);
+						miliSecSinceFood=0;
+						displayFood();
+					}
+					if(miliSecSinceLevelUp > miliSecLevelUpDelay){
+						miliSecLevelUpDelay = Math.round(Math.random()*10000); //The delay will be from 0 to 10000 sec
+						miliSecSinceLevelUp = 0;
+						levelUp();
+						levelText.innerHTML = level;
+					}
+					}
+					mySnakeHead.updateHead();	
+					mySnakeBody.forEach(function(item) {
+						item.update();
+					});
+			}
+
+			/*touchscreen*/
+			window.addEventListener('touchmove',function(e){
+				var xtouch = e.touches[0].screenX;
+				var ytouch = e.touches[0].screenY;
+				isStarted = true;
+				if(mySnakeHead.speedY != 0 && mySnakeHead.x > xtouch || mySnakeHead.speed){
+					moveRight();
+				}
+
+
+
+			});
+
+			/*Using the arrow keys*/
+			document.onkeydown = checkKey;
+
+			function checkKey(e) {
+
+
+				isStarted = true;
+			    e = e || window.event;
+			    if(hasMoved){
+				    if (e.keyCode == '38') {
+				        moveUp();
+				    }
+				    else if (e.keyCode == '40') {
+				        moveDown();
+				    }
+				    else if (e.keyCode == '37') {
+				       moveLeft();
+				    }
+				    else if (e.keyCode == '39') {
+				       moveRight();
+				    }
+			    }
+
+			}
+
+			function computeScore(){
+				//startFramerate=> antall second pause..
+				points += Math.round((points + mySnakeBody.length*20 + level*20)/startFramerate);
+				scoreText.innerHTML = points;
+			}
+
+
+			closeModal.onclick = function() {
+			    location.reload();
+
+			}
+			// When the user clicks anywhere outside of the modal, close it
+			window.onclick = function(event) {
+			    if (event.target == modal) {
+			        location.reload();
+			    }
+			}
+			/*keyevent left = 37 up = 38 right = 39 down = 40*/
+
+			/*Updates with 50 frames per second ~ movie frame rate*/
+		</script>
+	</body>
+</html>
