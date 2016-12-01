@@ -381,6 +381,9 @@
 			window.addEventListener('touchend',function(e){
 				var xtouch = e.touches[0].screenX;
 				var ytouch = e.touches[0].screenY;
+				if(!isStarted){
+					moveRight();
+				}
 				isStarted = true;
 				if(mySnakeHead.moveNorth || mySnakeHead.moveSouth){
 					if(mySnakeHead.x>xtouch){
