@@ -378,12 +378,18 @@
 			}
 
 			/*touchscreen*/
-			window.addEventListener('click',function(e){
-				var xtouch = e.touches[0].screenX;
-				var ytouch = e.touches[0].screenY;
+			window.addEventListener('touchstart',function(e){
+				var offsetx =  myGameArena.canvas.offsetLeft;
+				var offsety =  myGameArena.canvas.offsetTop;
+				var xtouch = e.clientX -offsetx;
+				var ytouch = e.clientY- offsety;
+			
+
+
 				if(!isStarted){
+					isStarted = true;
 					moveRight();
-				}
+				}else{
 				isStarted = true;
 				if(mySnakeHead.moveNorth || mySnakeHead.moveSouth){
 					if(mySnakeHead.x>xtouch){
@@ -392,12 +398,14 @@
 						moveRight();
 					}
 				}else if(mySnakeHead.moveWest || mySnakeHead.moveEast){
-					if(mySnakeHead.y>ytouch){
+					var touch = mySnakeHead.y-ytouch;
+					if(touch >0){
 						moveUp();
 					}else{
 						moveDown();
 					}
 				}
+			}
 
 			});
 
