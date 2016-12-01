@@ -113,8 +113,8 @@
 			var step = 20;
 			var startFramerate = 300;
 			var isStarted = false;
-			var canvasHeight = 500;
-			var canvasWidth = 600;
+			var canvasHeight = 450;
+			var canvasWidth = 500;
 			var grow = false;
 			var points = 0;
 			var strokeColor = '#606060';
@@ -131,13 +131,13 @@
 				generateBoard();
 				myFood = new component (30, 30, "yellow",strokeColor, 100, 120);
 				myFood.moveOffScreen();
-				mySnakeHead = new component (step, step, snakeColor,strokeColor, 120, 120);
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step,120));
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-2*step,120));
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-3*step,120));
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*4,120));
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*5,120));
-				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*6,120));
+				mySnakeHead = new component (step, step, snakeColor,strokeColor, 120, step*2);
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step,step*2));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-2*step,step*2));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-3*step,step*2));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*4,step*2));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*5,step*2));
+				mySnakeBody.push(new component(step, step, snakeColor ,strokeColor, 120-step*6,step*2));
 				
 			}
 
