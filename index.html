@@ -100,12 +100,12 @@
 			// Get the modal
 			var modal = document.getElementById('gameOverModal');
 			var miliSecSinceFoodDelay = 10000;
-			var miliSecLevelUpDelay = 15000;
+			var miliSecLevelUpDelay = performance.now();
 			var mySnakeHead, myFood;
 			var mySnakeBody= [];
 			var myObstacles = [];
 			var step = 20;
-			var startFramerate = 200;
+			var startFramerate = 300;
 			var isStarted = false;
 			var canvasHeight = 500;
 			var canvasWidth = 600;
@@ -117,6 +117,7 @@
 			var hasMoved = true;
 			var miliSecSinceLevelUp = 0;
 			var miliSecSinceFood = 0;
+			var startTimestamp = performance.now();
 
 
 			function startGame() {
@@ -136,8 +137,9 @@
 
 			function levelUp(){
 				level ++;
-				startFramerate = Math.round(startFramerate/2);
-				myGameArena.start;
+				startFramerate = startFramerate - 20;
+				console.log(startFramerate);
+				myGameArena.speedUp(startFramerate);
 
 			}
 
@@ -163,6 +165,11 @@
 
 				clear : function() {
 					this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				},
+				speedUp : function(speed){
+					clearInterval(this.interval);
+					this.interval = setInterval(updateGameArena, startFramerate);
+
 				},
 				stop : function() {
 					clearInterval(this.interval);
@@ -345,16 +352,15 @@
 					computeScore();
 					moveSnake();
 					miliSecSinceFood = miliSecSinceFood + startFramerate;
-					miliSecSinceLevelUp = miliSecSinceLevelUp + startFramerate;
+					miliSecSinceLevelUp = performance.now() - miliSecLevelUpDelay;
 					if(miliSecSinceFood > miliSecSinceFoodDelay){
-						miliSecSinceFoodDelay = Math.round(Math.random()*10000); //The delay will be from 0 to 10000 sec
+						miliSecSinceFoodDelay = Math.round(Math.random()*10000); //The delay will be from 0 to 10000 mili sec
 						console.log(miliSecSinceFoodDelay);
 						miliSecSinceFood=0;
 						displayFood();
 					}
-					if(miliSecSinceLevelUp > miliSecLevelUpDelay){
-						miliSecLevelUpDelay = Math.round(Math.random()*10000); //The delay will be from 0 to 10000 sec
-						miliSecSinceLevelUp = 0;
+					if(miliSecSinceLevelUp > 20000){
+						miliSecLevelUpDelay = performance.now();
 						levelUp();
 						levelText.innerHTML = level;
 					}
@@ -405,7 +411,8 @@
 
 			function computeScore(){
 				//startFramerate=> antall second pause..
-				points += Math.round((points + mySnakeBody.length*20 + level*20)/startFramerate);
+				var timeElapsed = Math.round((performance.now()- startTimestamp) / 1000);
+				points = Math.round(points + (mySnakeBody.length-5)*3);
 				scoreText.innerHTML = points;
 			}
 
