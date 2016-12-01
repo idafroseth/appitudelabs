@@ -372,15 +372,23 @@
 			}
 
 			/*touchscreen*/
-			window.addEventListener('touchmove',function(e){
+			window.addEventListener('touchend',function(e){
 				var xtouch = e.touches[0].screenX;
 				var ytouch = e.touches[0].screenY;
 				isStarted = true;
-				if(mySnakeHead.speedY != 0 && mySnakeHead.x > xtouch || mySnakeHead.speed){
-					moveRight();
+				if(mySnakeHead.moveNorth || mySnakeHead.moveSouth){
+					if(mySnakeHead.x>xtouch){
+						moveLeft();
+					}else{
+						moveRight();
+					}
+				}else if(mySnakeHead.moveWest || mySnakeHead.moveEast){
+					if(mySnakeHead.y>ytouch){
+						moveUp();
+					}else{
+						moveDown();
+					}
 				}
-
-
 
 			});
 
