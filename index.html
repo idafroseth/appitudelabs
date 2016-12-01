@@ -378,16 +378,14 @@
 			}
 
 			/*touchscreen*/
-			window.addEventListener('touchend',function(e){
+			window.addEventListener('click',function(e){
 				var xtouch = e.touches[0].screenX;
 				var ytouch = e.touches[0].screenY;
 				if(!isStarted){
-					alert("move right");
 					moveRight();
 				}
 				isStarted = true;
 				if(mySnakeHead.moveNorth || mySnakeHead.moveSouth){
-					alert("up or down");
 					if(mySnakeHead.x>xtouch){
 						moveLeft();
 					}else{
