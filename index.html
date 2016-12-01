@@ -381,8 +381,8 @@
 			window.addEventListener('touchstart',function(e){
 				var offsetx =  myGameArena.canvas.offsetLeft;
 				var offsety =  myGameArena.canvas.offsetTop;
-				var xtouch = e.touches[0].pageX -offsetx;
-				var ytouch = e.touches[0].pageX - offsety;
+				var xtouch = e.touches[0].clientX -offsetx;
+				var ytouch = e.touches[0].clientY - offsety;
 			
 
 
